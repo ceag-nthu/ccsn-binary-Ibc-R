@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# this provides the definition of do_one (run one part of test)
+# do_one [inlist] [output model] [LOGS directory]
+source "${MESA_DIR}/star/test_suite/test_suite_helpers"
+
+date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
+
+# Part 1 (CO core + He envelope + rotation)
+
+# 1. create pre ZAMS
+#do_one inlist_make_late_pre_zams_header late_pre_zams.mod
+#cp late_pre_zams.mod standard_late_pre_zams.mod
+
+# 2. create ZAMS
+#do_one inlist_to_zams_header zams.mod
+#cp zams.mod standard_zams.mod
+
+# 3. from ZAMS to after core He burning
+#do_one inlist_to_end_core_he_burn_header after_core_he_burn.mod
+#cp after_core_he_burn.mod standard_after_core_he_burn.mod
+
+# 4. remove the H envelope
+#do_one inlist_remove_envelope_header removed_H_envelope.mod
+#cp removed_H_envelope.mod standard_removed_H_envelope.mod
+
+# 5. Scale the CO core mass
+#do_one inlist_scale_CO_core_header scale_CO_core.mod
+#cp scale_CO_core.mod standard_scale_CO_core.mod
+
+# 6. Adjust the He envelope mass
+#do_one inlist_adjust_He_envelope_header adjust_He_envelope.mod
+#cp adjust_He_envelope.mod standard_adjust_He_envelope.mod
+
+# 7. Relax angular momentom
+#do_one inlist_relax_J_header relax_J.mod
+#cp relax_J.mod standard_relax_J.mod
+
+# Part 2 (C burning to CC)
+
+do_one inlist_to_end_core_c_burn_header after_core_c_burn.mod
+cp after_core_c_burn.mod standard_after_core_c_burn.mod
+
+do_one inlist_to_lgTmax_header lgTmax.mod
+cp lgTmax.mod standard_lgTmax.mod
+
+#do_one inlist_to_cc_header final.mod
+
+date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
+
+echo 'finished'
