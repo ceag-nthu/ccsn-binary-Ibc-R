@@ -103,6 +103,12 @@
       D_GSF_factor = 1
       D_ST_factor = 1
 
+      smooth_D_ST = 5
+      smooth_nu_ST = 5
+      smooth_D_omega = 5
+      smooth_am_nu_rot = 5
+
+
 ! mlt
       mixing_length_alpha = 1.5
       MLT_option = 'TDC'
@@ -211,7 +217,7 @@
 
       ! Recommend decreasing all three Rho, T, Tmax 
       ! to 1d-3 or lower in production runs
-      delta_lgRho_cntr_limit = 0.03
+      delta_lgRho_cntr_limit = 0.002 !0.03
       delta_lgRho_cntr_hard_limit = 0.1
       delta_lgRho_limit = 0.1 
       
@@ -227,9 +233,9 @@
 
       ! On the changes in total abundance of each isotope
       ! one of the most useful timestep controls, period 
-      dX_nuc_drop_limit = 2d-2 ! Recommend decreasing to 1d-3 or lower in a production run
-      dX_nuc_drop_limit_at_high_T = 2d-2  ! default = -1 = same as dX_nuc_drop_limit
-      dX_nuc_drop_min_X_limit = 1d-3 ! try decreasing to 1d-4 or 1d-5 in a production run
+      dX_nuc_drop_limit = 1d-3 !2d-2 ! Recommend decreasing to 1d-3 or lower in a production run
+      dX_nuc_drop_limit_at_high_T = 1d-3 !2d-2  ! default = -1 = same as dX_nuc_drop_limit
+      dX_nuc_drop_min_X_limit = 5d-5 !1d-3 ! try decreasing to 1d-4 or 1d-5 in a production run
       dX_nuc_drop_max_A_limit = 70   ! try increasing beyond 60 in a big network run
       dX_nuc_drop_hard_limit = 1d99
 
@@ -373,7 +379,6 @@
 
       !report_solver_progress = .true. ! set true to see info about solver iterations
       !report_ierr = .true. ! if true, produce terminal output when have some internal error
-
 
 
 
