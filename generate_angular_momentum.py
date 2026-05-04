@@ -15,6 +15,57 @@ import numpy as np
 from numpy import trapezoid
 
 MSUN_CGS = 1.989e33  # g
+G_CGS = 6.67430e-8  # cm^3 g^-1 s^-2
+
+
+def check_critical_rotation(omega_surface, M_star, R_surface):
+    """Report omega_surface / omega_crit at the stellar surface.
+
+    omega_crit is the Keplerian break-up frequency: sqrt(G*M / R^3).
+    Warns if the ratio exceeds 0.9 (rotation is super- or near-critical).
+    """
+    omega_crit = np.sqrt(G_CGS * M_star / R_surface**3)
+    ratio = omega_surface / omega_crit
+    print(f"  Surface check: omega_surf = {omega_surface:.4e} rad/s, "
+          f"omega_crit = {omega_crit:.4e} rad/s")
+    print(f"  omega_surf / omega_crit = {ratio:.4f}")
+    if ratio >= 1.0:
+        print(f"  WARNING: surface is super-critical (ratio >= 1)")
+    elif ratio >= 0.9:
+        print(f"  WARNING: surface rotation is near critical (ratio >= 0.9)")
+    return ratio
+
+
+def apply_critical_cap(j, r, M_star, q_face, f_crit):
+    """Cap j(r) so omega(r) <= f_crit * omega_crit_local(r) at every shell.
+
+    omega_crit_local(r) = sqrt(G * M_enc(r) / r^3), with
+    M_enc(r) = M_star * (1 - q_face) — the mass interior to that shell
+    (q_face[0] = 0 at surface, increasing inward, so 1 - q_face is the
+    enclosed mass fraction).
+
+    Inverts j = (2/3) * omega * r^2 to recover per-cell omega, applies
+    the cap, then rebuilds j. Returns the new j and a stats dict.
+    """
+    omega_cell = j / ((2.0 / 3.0) * r**2)
+    M_enc = M_star * (1.0 - q_face)
+    omega_crit_local = np.sqrt(G_CGS * M_enc / r**3)
+    cap = f_crit * omega_crit_local
+
+    capped_mask = omega_cell > cap
+    omega_capped = np.where(capped_mask, cap, omega_cell)
+    j_new = (2.0 / 3.0) * omega_capped * r**2
+
+    ratio_before = omega_cell / omega_crit_local
+    ratio_after = omega_capped / omega_crit_local
+    stats = {
+        "n_capped": int(capped_mask.sum()),
+        "n_total": len(j),
+        "max_ratio_before": float(ratio_before.max()),
+        "max_ratio_after": float(ratio_after.max()),
+        "first_capped_q": float(q_face[capped_mask][0]) if capped_mask.any() else None,
+    }
+    return j_new, stats
 
 
 def load_mesa_model(filepath):
@@ -72,7 +123,7 @@ def load_mesa_model(filepath):
     }
 
 
-def generate_angular_momentum(model, J_CO, J_total, outfile):
+def generate_angular_momentum(model, J_CO, J_total, outfile, f_crit=None):
     """Generate angular momentum profile and write to file.
 
     Args:
@@ -80,6 +131,11 @@ def generate_angular_momentum(model, J_CO, J_total, outfile):
         J_CO: total angular momentum of CO core (g cm^2 s^-1)
         J_total: total angular momentum of the entire star (g cm^2 s^-1)
         outfile: output file path
+        f_crit: if set, cap omega(r) at f_crit * omega_crit_local(r) per shell
+            (e.g. 0.5). Solid-body omegas are still computed from J_CO/J_total
+            so the core keeps its full ω; the cap only bites where the
+            solid-body profile exceeds the local Keplerian limit, mostly in
+            the outer envelope. Total J in the output drops accordingly.
 
     Returns:
         xq, j, interface_q (or None if purely CO core).
@@ -127,12 +183,33 @@ def generate_angular_momentum(model, J_CO, J_total, outfile):
 
         j[he_mask] = (2.0 / 3.0) * omega_He * r[he_mask] ** 2
         j[co_mask] = (2.0 / 3.0) * omega_CO * r[co_mask] ** 2
+        omega_surface = omega_He
     else:
         print(f"  Purely CO core (no he4=c12 crossing)")
         I_total = M_star * trapezoid(r2_profile, xq)
         omega = J_total / I_total
         print(f"  omega = {omega:.4e} rad/s")
         j[:] = (2.0 / 3.0) * omega * r**2
+        omega_surface = omega
+
+    # Apply per-shell critical-omega cap (preserves core, suppresses envelope).
+    if f_crit is not None:
+        J_pre = M_star * trapezoid(j, xq)
+        j, stats = apply_critical_cap(j, r, M_star, xq, f_crit)
+        J_post = M_star * trapezoid(j, xq)
+        print(f"  Cap (f_crit = {f_crit}): {stats['n_capped']}/{stats['n_total']} "
+              f"shells capped")
+        if stats["first_capped_q"] is not None:
+            print(f"    cap first binds at q = {stats['first_capped_q']:.4f}")
+        print(f"    max omega/omega_crit_local: "
+              f"{stats['max_ratio_before']:.4f} -> {stats['max_ratio_after']:.4f}")
+        print(f"    J: {J_pre:.4e} -> {J_post:.4e} "
+              f"({100 * (J_pre - J_post) / J_pre:.2f}% lost to cap)")
+        # Surface omega may have been capped — reflect that in the surface check.
+        omega_surface = j[0] / ((2.0 / 3.0) * r[0] ** 2)
+
+    # r[0] is the outer face of zone 1 (the surface) — see CLAUDE.md on conventions.
+    check_critical_rotation(omega_surface, M_star, r[0])
 
     # Write data file
     with open(outfile, "w") as f:
@@ -163,6 +240,11 @@ def main():
     )
     parser.add_argument("--fout", required=True, help="Output data file path")
     parser.add_argument(
+        "--f_crit", type=float, default=None,
+        help="Cap omega per shell at f_crit * sqrt(G*M_enc/r^3) (e.g. 0.5). "
+             "Default: no cap.",
+    )
+    parser.add_argument(
         "--plot", default=None,
         help="Save a plot of j(q) to this file (optional)",
     )
@@ -174,7 +256,7 @@ def main():
 
     print(f"Generating J profile: J_CO = {args.J_CO:.4e}, J_total = {args.J_total:.4e}")
     xq, j, interface_q = generate_angular_momentum(
-        model, args.J_CO, args.J_total, args.fout
+        model, args.J_CO, args.J_total, args.fout, f_crit=args.f_crit
     )
 
     if args.plot:
