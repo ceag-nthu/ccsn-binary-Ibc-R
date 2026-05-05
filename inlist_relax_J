@@ -4,10 +4,10 @@
       show_log_description_at_start = .false.
 
       load_saved_model = .true.
-      load_model_filename = 'adjust_He_envelope.mod'
+      load_model_filename = 'adjust_He_envelope_2.mod'
 
       save_model_when_terminate = .true.
-      save_model_filename = 'relax_J.mod'
+      save_model_filename = 'relax_J_2.mod'
       required_termination_code_string = 'max_model_number'
       !required_termination_code_string = 'star_mass_min_limit'
 
@@ -24,7 +24,7 @@
 
       ! relax the angular momentum from a file
       relax_initial_angular_momentum = .true.
-      relax_angular_momentum_filename = 'data_J_adjust_He_envelope.dat'
+      relax_angular_momentum_filename = 'data_J_adjust_He_envelope_2_f5_p2_m3.dat'
       max_steps_to_relax_angular_momentum = 1000
       max_dt_for_relax_angular_momentum = 1d-9
       timescale_for_relax_angular_momentum = 1d-10

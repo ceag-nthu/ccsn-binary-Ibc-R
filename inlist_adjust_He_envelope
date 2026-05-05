@@ -4,10 +4,10 @@
       show_log_description_at_start = .false.
 
       load_saved_model = .true.
-      load_model_filename = 'scale_CO_core.mod'
+      load_model_filename = 'scale_CO_core_2.mod'
 
       save_model_when_terminate = .true.
-      save_model_filename = 'adjust_He_envelope.mod'
+      save_model_filename = 'adjust_He_envelope_2.mod'
       !required_termination_code_string = 'max_model_number'
       required_termination_code_string = 'star_mass_min_limit'
 
@@ -18,7 +18,7 @@
       !extra_mass_retained_by_remove_H_env = 5d-3 ! [msun]
       lg_max_abs_mdot = -2
       relax_mass = .true.
-      new_mass   = 1.434999d0     ! set to the CO core mass 
+      new_mass   = 1.6829999d0     ! set to the CO core mass 
 
       !pgstar_flag = .false.
 
@@ -36,7 +36,7 @@
       !max_model_number = 1700
       relax_max_number_retries = 500
       !max_number_retries = 37
-      star_mass_min_limit = 1.435d0 
+      star_mass_min_limit = 1.683d0 
 
 ! wind
 

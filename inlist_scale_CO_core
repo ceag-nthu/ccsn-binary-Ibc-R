@@ -7,14 +7,17 @@
       load_model_filename = 'removed_H_envelope.mod'
 
       save_model_when_terminate = .true.
-      save_model_filename = 'scale_CO_core.mod'
+      save_model_filename = 'scale_CO_core_2.mod'
       !required_termination_code_string = 'max_model_number'
       required_termination_code_string = 'star_mass_min_limit'
 
       set_initial_number_retries = .true.
 
       relax_mass_scale = .true.
-      new_mass =  1.9498 ! 1.435/5.8352772006280276 * 7.9289094227547148 (msun)
+      !new_mass =  1.9498 ! 1.435/5.8352772006280276 * 7.9289094227547148 (msun)
+      !new_mass =  2.28684 ! 1.683/5.8352772006280276 * 7.9289094227547148 (msun)
+      !new_mass =  2.28987 ! 1.683/ 6.008206 * 8.174710 (msun) low res
+      new_mass =  2.9506 ! 1.683/ 2.019110 * 3.539893 (msun) low res
 
       !pgstar_flag = .false.
 
@@ -32,7 +35,10 @@
       !max_model_number = 1700
       relax_max_number_retries = 500
       !max_number_retries = 37
-      star_mass_min_limit = 1.9499d0 
+      star_mass_min_limit = 2.95063 !2.28684158 !1.9499d0 
+
+      redo_limit = 300
+      retry_limit = 300
 
 ! wind
 

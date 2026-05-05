@@ -164,8 +164,8 @@
       overshoot_zone_type(1) = 'burn_H'
       overshoot_zone_loc(1) = 'core'
       overshoot_bdy_loc(1) = 'top'
-      overshoot_f(1) = 0.345 ! for M>10
-      !overshoot_f(1) = 0.21 ! For M<10 
+      !overshoot_f(1) = 0.345 ! for M>10
+      overshoot_f(1) = 0.21 ! For M<10 
       overshoot_f0(1) = 0.01
 
   ! exponential in the H core
@@ -203,8 +203,8 @@
       max_timestep_factor = 1.05d0
       timestep_factor_for_retries = 0.75
       
-      limit_for_rel_error_in_energy_conservation = 1d-7
-      hard_limit_for_rel_error_in_energy_conservation = 1d-6      
+      limit_for_rel_error_in_energy_conservation = 1d-3 !1d-7
+      hard_limit_for_rel_error_in_energy_conservation = 1d-2 !1d-6      
       
       never_skip_hard_limits = .true.
       min_xa_hard_limit = -1d-5
@@ -304,8 +304,8 @@
 
 ! mesh
       !max_dq= 1d-3 ! or lower
-      mesh_delta_coeff = 1.0 ! try 1.0 or below in production run
-      mesh_delta_coeff_for_highT = 1.0 ! try 1.0 or below in production run
+      mesh_delta_coeff = 2.5 !1.0 ! try 1.0 or below in production run
+      mesh_delta_coeff_for_highT = 1.5 !1.0 ! try 1.0 or below in production run
       logT_max_for_standard_mesh_delta_coeff = 9.0 
       logT_min_for_highT_mesh_delta_coeff = 9.5 
       !min_dq_for_xa = 1d-4 ! avoid over-resolving composition changes, bad for bit for bit convergence
@@ -332,10 +332,11 @@
       gold_solver_iters_timestep_limit = 20
       iter_for_resid_tol2 = 10
 
-      max_abs_rel_run_E_err = 1d-2
+      max_abs_rel_run_E_err = 1d-1 !1d-2
+      warn_when_large_rel_run_E_err = 1d-2
 
       energy_eqn_option = 'dedt'
-      max_tries_for_implicit_wind = 0 ! Recommend 10 for a production run     
+      max_tries_for_implicit_wind = 10 ! Recommend 10 for a production run     
 
       convergence_ignore_equL_residuals = .true. 
       make_gradr_sticky_in_solver_iters = .true.

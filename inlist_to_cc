@@ -35,7 +35,7 @@ op_split_burn_min_T = 1d9
       fe_core_infall_limit = 1d7
 
       ! limit max_model_number as part of test_suite
-      max_model_number = 6000
+      max_model_number = 60000000
       !max_number_retries = 37
 
 ignore_too_large_correction = .true. ! for conv_vel's

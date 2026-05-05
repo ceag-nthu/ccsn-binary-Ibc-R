@@ -4,11 +4,19 @@
       show_log_description_at_start = .false.
 
       load_saved_model = .true.
-      load_model_filename = 'relax_J.mod'
+      !load_model_filename = 'after_core_he_burn.mod'
+      !load_model_filename = 'scale_CO_core_2.mod'
+      load_model_filename = 'relax_J_2.mod'
+      !load_model_filename = 'adjust_He_envelope_2.mod'
 
       save_model_when_terminate = .true.
       save_model_filename = 'after_core_c_burn.mod'
       required_termination_code_string = 'xa_central_lower_limit'
+
+      ! Can be adopted to avoid issues with surface for high Z or during advanced burning
+      relax_to_this_tau_factor = 1.5d6
+      dlogtau_factor = 0.1d0
+      relax_initial_tau_factor = .true.
 
 / ! end of star_job namelist
 
@@ -20,8 +28,8 @@
 
 &controls
 ! prevent development of radial pulses during advanced burning
-      !drag_coefficient = 1d0
-      !min_q_for_drag = 0.8d0
+      drag_coefficient = 1d0
+      min_q_for_drag = 0.3d0 !0.8d0
 
       set_min_D_mix = .true.
       min_D_mix = 1d-2 
@@ -30,12 +38,18 @@
       xa_central_lower_limit(1) = 1d-3
 
       ! limit max_model_number as part of test_suite
-      max_model_number = 90000
-      !max_number_retries = 37
+      max_model_number = 9000000
+      max_number_retries = -1 !37
+
+      hydro_mtx_min_allowed_logT   = 0.5d0      ! default 1d0
+      hydro_mtx_min_allowed_logRho = -50d0 !-14d0      ! default -1d2 already very loose;
+      hydro_mtx_max_allowed_logRho = 1d13
 
 ! wind
+      Dutch_scaling_factor = 0.8d0
 
 ! atmosphere
+      use_compression_outer_BC = .true. 
 
 ! rotation
 
