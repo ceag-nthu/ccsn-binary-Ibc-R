@@ -14,9 +14,9 @@
       required_termination_code_string = 'xa_central_lower_limit'
 
       ! Can be adopted to avoid issues with surface for high Z or during advanced burning
-      relax_to_this_tau_factor = 1.5d6
-      dlogtau_factor = 0.1d0
-      relax_initial_tau_factor = .true.
+      !relax_to_this_tau_factor = 1.5d6
+      !dlogtau_factor = 0.1d0
+      !relax_initial_tau_factor = .true.
 
 / ! end of star_job namelist
 
